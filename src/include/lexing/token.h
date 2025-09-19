@@ -14,19 +14,24 @@ print(identity)
 
 typedef enum token_type {
     TOKEN_ERROR = -1,
+    TOKEN_EOF,
     TOKEN_SYMBOL,
     TOKEN_NUMBER_LIT,
     TOKEN_STRING_LIT,
 
-    TOKEN_ASSIGNOP,
-    TOKEN_MAPOP,
+    TOKEN_ASSIGN_OP,
+    TOKEN_MAP_OP,
     
-    TOKEN_ADDOP,
-    TOKEN_MULOP,
-    TOKEN_EXPOP,
+    TOKEN_ADD_OP,
+    TOKEN_MUL_OP,
+    TOKEN_EXP_OP,
+    TOKEN_REL_OP,
+    TOKEN_NOT_OP,
 
     TOKEN_DOLLAR,
     TOKEN_ELLIPSE,
+    TOKEN_DOT,
+    TOKEN_COMMA,
     TOKEN_COLON,
     TOKEN_SEMICOLON,
 
@@ -40,6 +45,7 @@ typedef enum token_type {
 
 typedef struct token {
     char lexeme[LEXEME_MAX_SIZE];
+    int length;
     token_type_t type;
 } token_t;
 

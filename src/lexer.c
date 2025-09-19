@@ -1,70 +1,24 @@
 #include "include/lexing/lexer.h"
 
-#include "lexer.h"
-#include <stdio.h>
-#include <stdlib.h>
-
-
-
-static const char *tokenStrings[LEX_TOKEN_NUM_TOKEN_STRINGS] = {
-    "EOF",
-    "ID",
-    "COLON",
-    "SEMICOLON", // Instruction delimiter.
-    "COMMA",
-    "LPAREN",
-    "RPAREN",
-    "LBRACK",
-    "RBRACK",
-    "LBRACE",
-    "RBRACE",
-    "ELLIPSE",
-
-    "INT_LIT",
-    "REAL_LIT",
-    "STRING_LIT",
-    "INT",
-    "REAL",
-    "IF",
-    "ELSE",
-    "FOR",
-    "IN",
-    "WHILE",
-    "CALL",
-    "PROCEDURE",
-    "ENDIF",
-    "ENDFOR",
-    "ENDWHILE",
-    "ENDPROCEDURE",
-
-    "ASSIGN_OP",
-    "ADD_OP",
-    "MUL_OP",
-    "EXP_OP",
-    "NOT_OP",
-    "REL_OP",
-    "AND_OP",       
-    "OR_OP",
-};
-
 static int dfa[256][256];
-static bool dfaConstructed = 0;
-static int lineno = 1;
-static char *keywords[LEX_TOKEN_NUM_KEYWORDS] = {
-    "int",
-    "real",
-    "if",
-    "else",
-    "for",
-    "in",
-    "while",
-    "procedure",
-    "endif",
-    "endfor",
-    "endwhile",
-    "endprocedure",
-    "call",
-};
+static bool inited_dfa = 0;
+
+// static int lineno = 1;
+// static char *keywords[LEX_TOKEN_NUM_KEYWORDS] = {
+//     "int",
+//     "real",
+//     "if",
+//     "else",
+//     "for",
+//     "in",
+//     "while",
+//     "procedure",
+//     "endif",
+//     "endfor",
+//     "endwhile",
+//     "endprocedure",
+//     "call",
+// };
 
 void init_dfa(int dfa[256][256]) {
 
@@ -126,168 +80,163 @@ void init_dfa(int dfa[256][256]) {
     // Not Op (16)
     dfa[0]['!'] = 17;
 
-    
-
     // Rel Op
     dfa[0]['<'] = 18;
     dfa[0]['>'] = 18;
-    dfa[16]['='] = 19;
     dfa[17]['='] = 19;
+    dfa[18]['='] = 19;
+    dfa[10]['='] = 19;
 
     // dfa[0]['&'] = 18;
     // dfa[0]['|'] = 19;
 
     // dfa[0][';'] = 20;
-    dfa[0]['('] = 19;
-    dfa[0][')'] = 20;
-    dfa[0]['['] = 21;
-    dfa[0][']'] = 22;
+    dfa[0]['('] = 20;
+    dfa[0][')'] = 21;
+    dfa[0]['['] = 22;
+    dfa[0][']'] = 23;
 
-    dfa[0]['{'] = 23;
-    dfa[0]['}'] = 24;
-    dfa[0][','] = 25;
-    dfa[0]['.'] = 26;
-    dfa[26]['.'] = 27;
+    dfa[0]['{'] = 24;
+    dfa[0]['}'] = 25;
+    dfa[0][','] = 26;
+    dfa[0]['.'] = 27;
     dfa[27]['.'] = 28;
     
-
-
-    dfaConstructed = 1;
+    inited_dfa = 1;
 }
 
-TokenType lexGetTokenType(const int state) {
+token_type_t get_token_type(const int state) {
     switch (state) {
         case  0: return TOKEN_ERROR;
-        case  1: return TOKEN_ID;
-        case  2: return TOKEN_INT_LIT;
+        case  1: return TOKEN_SYMBOL;
+        case  2: return TOKEN_NUMBER_LIT;
         case  3: return TOKEN_ERROR;
-        case  4: return TOKEN_REAL_LIT;
-        case  5: return TOKEN_INT_LIT;
+        case  4: return TOKEN_NUMBER_LIT;
+        case  5: return TOKEN_NUMBER_LIT;
         case  6: return TOKEN_ERROR;
         case  7: return TOKEN_STRING_LIT;
         case  8: return TOKEN_COLON;
-        case  9: return TOKEN_ASSIGN_OP;
-        case 10: return TOKEN_ADD_OP;
-        case 11: return TOKEN_ADD_OP;
-        case 12: return TOKEN_MUL_OP;
-        case 13: return TOKEN_EXP_OP;
-        case 14: return TOKEN_REL_OP;
-        case 15: return TOKEN_REL_OP;
-        case 16: return TOKEN_REL_OP;
+        case  9: return TOKEN_SEMICOLON;
+        case 10: return TOKEN_ASSIGN_OP;
+        case 11: return TOKEN_DOLLAR;
+        case 12: return TOKEN_ADD_OP;
+        case 13: return TOKEN_ADD_OP;
+        case 14: return TOKEN_MAP_OP;
+        case 15: return TOKEN_MUL_OP;
+        case 16: return TOKEN_EXP_OP;
         case 17: return TOKEN_NOT_OP;
-        case 18: return TOKEN_AND_OP;
-        case 19: return TOKEN_OR_OP;
-        case 20: return TOKEN_SEMICOLON;
-        case 21: return TOKEN_LPAREN;
-        case 22: return TOKEN_RPAREN;
-        case 23: return TOKEN_LBRACK;
-        case 24: return TOKEN_RBRACK;
-        case 25: return TOKEN_COMMA;
-        case 26: return TOKEN_LBRACE;
-        case 27: return TOKEN_RBRACE;
-        case 28: return TOKEN_ERROR;
-        case 29: return TOKEN_ERROR;
-        case 30: return TOKEN_ELLIPSE;
-        
+        case 18: return TOKEN_REL_OP;
+        case 19: return TOKEN_REL_OP;
+        case 20: return TOKEN_LPAREN;
+        case 21: return TOKEN_RPAREN;
+        case 22: return TOKEN_LBRACK;
+        case 23: return TOKEN_RBRACK;
+        case 24: return TOKEN_LBRACE;
+        case 25: return TOKEN_RBRACE;
+        case 26: return TOKEN_COMMA;
+        case 27: return TOKEN_DOT;
+        case 28: return TOKEN_ELLIPSE;
+
         default: return TOKEN_EOF;
     }
 }
 
-TokenType lexGetTokenKeywordType(const int index) {
-    switch (index) {
-        case  0: return TOKEN_INT;
-        case  1: return TOKEN_REAL;
-        case  2: return TOKEN_IF;
-        case  3: return TOKEN_ELSE;
-        case  4: return TOKEN_FOR;
-        case  5: return TOKEN_IN;
-        case  6: return TOKEN_WHILE;
-        case  7: return TOKEN_PROCEDURE;
-        case  8: return TOKEN_ENDIF;
-        case  9: return TOKEN_ENDFOR;
-        case 10: return TOKEN_ENDWHILE;
-        case 11: return TOKEN_ENDPROCEDURE;
-        case 12: return TOKEN_CALL;
+// TokenType lexGetTokenKeywordType(const int index) {
+//     switch (index) {
+//         case  0: return TOKEN_INT;
+//         case  1: return TOKEN_REAL;
+//         case  2: return TOKEN_IF;
+//         case  3: return TOKEN_ELSE;
+//         case  4: return TOKEN_FOR;
+//         case  5: return TOKEN_IN;
+//         case  6: return TOKEN_WHILE;
+//         case  7: return TOKEN_PROCEDURE;
+//         case  8: return TOKEN_ENDIF;
+//         case  9: return TOKEN_ENDFOR;
+//         case 10: return TOKEN_ENDWHILE;
+//         case 11: return TOKEN_ENDPROCEDURE;
+//         case 12: return TOKEN_CALL;
 
-        default: return TOKEN_ERROR;
-    }
-}
+//         default: return TOKEN_ERROR;
+//     }
+// }
 
-[[nodiscard]] ullong lexGetToken(Token *tok, const char *is, ullong index) {
-    tok->length = 0;
-    tok->lineno = lineno;
-    tok->type = TOKEN_ERROR;
-    tok->value[0] = 0;
-    if (!is || !tok)
-        return ULLONG_MAX;
+[[nodiscard]] int get_token(token_t *token, const char *is, int index) {
+    token->length = 0;
+    token->type = TOKEN_ERROR;
+    token->lexeme[0] = 0;
+    if (!is || !token)
+        return -1;
     
     // Remove ws
     char ch = is[index];
-    while (ch == ' ' || ch == '\t' || ch == '\n') {
-        if (ch == '\n') 
-            tok->lineno = ++lineno;
+    while (ch == ' ' || ch == '\t' || ch == '\n')
         ch = is[++index];
-    }
 
     ch = 0;
     int curr_state = 0;
     int prev_state = -1;
-    if (!dfaConstructed)
+    if (!inited_dfa)
         init_dfa(dfa);
     while (curr_state != -1) {
         ch = is[index++];
+
+        // Omit comments (indicated by '#')
         if (ch == '#') {
             while (ch != '\n') {
                 ch = is[index++];
             }
-            return lexGetToken(tok, is, index);
+            return get_token(token, is, index);
         }
         
-        tok->value[tok->length++] = ch;
+        token->lexeme[token->length++] = ch;
         prev_state = curr_state;
-        curr_state = dfa[curr_state][(int)ch];
+        curr_state = dfa[curr_state][ch];
     }
     --index;
-    tok->value[--tok->length] = 0;
-    if (*tok->value)
-        tok->type = lexGetTokenType(prev_state);
+    token->lexeme[--token->length] = 0;
+    if (*token->lexeme)
+        token->type = get_token_type(prev_state);
     else
-        tok->type = TOKEN_EOF;
-        
-    if (tok->type == TOKEN_ID) {
-        for (int i = 0; i < LEX_TOKEN_NUM_KEYWORDS; i++) {
-            bool is_kw = 1;
-            int j = 0;
-            while (j < tok->length) {
-                if (!keywords[i][j] || (keywords[i][j] != tok->value[j])) {
-                    is_kw = 0;
-                    break;
-                }
-                j++;
-            }
-            if (is_kw && !keywords[i][j]) {
-                tok->type = lexGetTokenKeywordType(i);
-                break;
-            }
-        }
-    }
+        token->type = TOKEN_EOF;
+    
+    // Deal with keywords later.
+
+    // if (token->type == TOKEN_SYMBOL) {
+    //     for (int i = 0; i < LEX_TOKEN_NUM_KEYWORDS; i++) {
+    //         bool is_kw = 1;
+    //         int j = 0;
+    //         while (j < token->length) {
+    //             if (!keywords[i][j] || (keywords[i][j] != token->lexeme[j])) {
+    //                 is_kw = 0;
+    //                 break;
+    //             }
+    //             j++;
+    //         }
+    //         if (is_kw && !keywords[i][j]) {
+    //             token->type = lexGetTokenKeywordType(i);
+    //             break;
+    //         }
+    //     }
+    // }
+
     return index;
 }
 
-void lexPrintToken(Token *tok) {
-    if (!tok)
-        return;
+// void lexPrintToken(token_t *token) {
+//     if (!token)
+//         return;
     
-    printf("%s\t->\t%s\n", tok->value, tokenStrings[tok->type]);
-}
+//     printf("%s\t->\t%s\n", token->lexeme, tokenStrings[token->type]);
+// }
 
-void lexTokenStreamEnqueue(TokenStream *ts, Token *token) {
-    TokenStreamNode *node = (TokenStreamNode *)malloc(sizeof(TokenStreamNode));
+void token_stream_enqueue(token_stream_t *ts, token_t *token) {
+    token_stream_node_t *node = (token_stream_node_t *)malloc(sizeof(token_stream_node_t));
     node->next = NULL;
     node->token.length = token->length;
     node->token.type = token->type;
-    for (int i = 0; i < LEX_TOKEN_MAX_LENGTH; i++)
-        node->token.value[i] = token->value[i];
+    for (int i = 0; i < LEXEME_MAX_SIZE; i++)
+        node->token.lexeme[i] = token->lexeme[i];
 
     if (!ts->back) {
         ts->back = node;
@@ -299,8 +248,8 @@ void lexTokenStreamEnqueue(TokenStream *ts, Token *token) {
     ts->back = node;
 }
 
-void lexTokenStreamDequeue(TokenStream *ts) {
-    TokenStreamNode *node = ts->front;
+void token_stream_dequeue(token_stream_t *ts) {
+    token_stream_node_t *node = ts->front;
     if (!ts->front->next) {
         free(node);
         ts->front = NULL;
@@ -312,13 +261,13 @@ void lexTokenStreamDequeue(TokenStream *ts) {
     free(node);
 }
 
-void lexTokenStreamFront(TokenStream *ts, Token *token) {
+void token_stream_front(token_stream_t *ts, token_t *token) {
     token->length = ts->front->token.length;
     token->type = ts->front->token.type;
-    for (int i = 0; i < LEX_TOKEN_MAX_LENGTH; i++)
-        token->value[i] = ts->front->token.value[i];
+    for (int i = 0; i < LEXEME_MAX_SIZE; i++)
+        token->lexeme[i] = ts->front->token.lexeme[i];
 }
 
-bool lexTokenStreamEmpty(TokenStream *ts) {
+bool token_stream_empty(token_stream_t *ts) {
     return ts->front;
 }

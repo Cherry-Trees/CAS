@@ -1,5 +1,8 @@
 {
     "files.associations": {
-        "string.h": "c"
+        "string.h": "c",
+        "xlocale": "c",
+        "xstring": "c",
+        "token_stream.h": "c"
     }
 }

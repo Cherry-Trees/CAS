@@ -17,9 +17,9 @@ struct token_stream {
     token_stream_node_t *back;
 };
 
-void token_stream_enqueue(token_stream_t *ts, token_t *token);
-void token_stream_dequeue(token_stream_t *ts);
-void token_stream_front(token_stream_t *ts, token_t *token);
-bool token_stream_empty(token_stream_t *ts);
+void token_stream_enqueue(token_stream_t *, token_t *);
+void token_stream_dequeue(token_stream_t *);
+void token_stream_front(token_stream_t *, token_t *);
+bool token_stream_empty(token_stream_t *);
 
 #endif
