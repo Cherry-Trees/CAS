@@ -26,6 +26,7 @@ typedef enum token_type {
     TOKEN_EXPOP,
 
     TOKEN_DOLLAR,
+    TOKEN_ELLIPSE,
     TOKEN_COLON,
     TOKEN_SEMICOLON,
 

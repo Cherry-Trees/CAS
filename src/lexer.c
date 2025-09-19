@@ -104,7 +104,7 @@ void init_dfa(int dfa[256][256]) {
     // Assign Op (10)
     dfa[0]['='] = 10;
 
-    // Add Op (11, 12)
+    // Add Op (12, 13)
     dfa[0]['$'] = 11;
     dfa[0]['+'] = 12;
     dfa[0]['-'] = 13;
