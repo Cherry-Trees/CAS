@@ -1,0 +1,14 @@
+digraph {
+    node[shape="box"]
+
+    rankdir="UD"
+
+    CAS
+
+    CAS -> symbols
+    CAS -> numbers
+
+    symbols -> functions
+
+    
+}
