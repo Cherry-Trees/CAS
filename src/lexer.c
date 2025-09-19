@@ -20,6 +20,36 @@ static bool inited_dfa = 0;
 //     "call",
 // };
 
+const char *token_strings[] = {
+    "TOKEN_EOF",
+    "TOKEN_SYMBOL",
+    "TOKEN_NUMBER_LIT",
+    "TOKEN_STRING_LIT",
+
+    "TOKEN_ASSIGN_OP",
+    "TOKEN_MAP_OP",
+    
+    "TOKEN_ADD_OP",
+    "TOKEN_MUL_OP",
+    "TOKEN_EXP_OP",
+    "TOKEN_REL_OP",
+    "TOKEN_NOT_OP",
+
+    "TOKEN_DOLLAR",
+    "TOKEN_ELLIPSE",
+    "TOKEN_DOT",
+    "TOKEN_COMMA",
+    "TOKEN_COLON",
+    "TOKEN_SEMICOLON",
+
+    "TOKEN_LPAREN",
+    "TOKEN_RPAREN",
+    "TOKEN_LBRACK",
+    "TOKEN_RBRACK",
+    "TOKEN_LBRACE",
+    "TOKEN_RBRACE"
+};
+
 void init_dfa(int dfa[256][256]) {
 
     for (int i = 0; i < 256; i++)
@@ -223,12 +253,12 @@ token_type_t get_token_type(const int state) {
     return index;
 }
 
-// void lexPrintToken(token_t *token) {
-//     if (!token)
-//         return;
+void print_token(token_t *token) {
+    if (!token)
+        return;
     
-//     printf("%s\t->\t%s\n", token->lexeme, tokenStrings[token->type]);
-// }
+    printf("%s\t->\t%s\n", token->lexeme, token_strings[token->type]);
+}
 
 void token_stream_enqueue(token_stream_t *ts, token_t *token) {
     token_stream_node_t *node = (token_stream_node_t *)malloc(sizeof(token_stream_node_t));
